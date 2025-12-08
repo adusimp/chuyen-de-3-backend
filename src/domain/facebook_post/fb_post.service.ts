@@ -1,7 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Post } from "./entities/fb_post.entity";
+import { Post, PostStatus } from "./entities/fb_post.entity";
 
 @Injectable()
 export class FbPostService {
@@ -17,8 +17,22 @@ export class FbPostService {
     });
     return await this.postRepository.save(newPost);
    } catch (error) {
-    console.error('Error creating post:', error);
     throw new Error('Could not create post');
    }
+  }
+  async updateFacebookUrl(id: number, fbUrl: string): Promise<Post> {
+    // 1. Tìm bài viết
+    const post = await this.postRepository.findOne({ where: { id } });
+
+    if (!post) {
+      throw new NotFoundException(`Không tìm thấy bài viết ID: ${id}`);
+    }
+
+    // 2. Chỉ cập nhật đúng 2 trường này
+    post.facebook_post_url = fbUrl;
+    post.status = PostStatus.POSTED; // Tương đương số 1
+
+    // 3. Lưu và trả về kết quả
+    return this.postRepository.save(post);
   }
 }
