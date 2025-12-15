@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FbPostModule } from './domain/facebook_post/fb_post.module';
+import { ProductsModule } from './domain/reply_message/products/products.module';
+import { OrdersModule } from './domain/reply_message/orders/orders.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { FbPostModule } from './domain/facebook_post/fb_post.module';
       },
     }),
     FbPostModule,
+    ProductsModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
