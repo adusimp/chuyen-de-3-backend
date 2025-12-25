@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { FbPostModule } from './domain/facebook_post/fb_post.module';
 import { ProductsModule } from './domain/reply_message/products/products.module';
 import { OrdersModule } from './domain/reply_message/orders/orders.module';
+import { ReplyCommentModule } from './domain/reply_comment/reply_comment.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { OrdersModule } from './domain/reply_message/orders/orders.module';
     FbPostModule,
     ProductsModule,
     OrdersModule,
+    ReplyCommentModule
   ],
   controllers: [AppController],
   providers: [AppService],
