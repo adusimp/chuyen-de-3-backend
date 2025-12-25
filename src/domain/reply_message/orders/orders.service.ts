@@ -13,7 +13,7 @@ export class OrdersService {
         private readonly dataSource: DataSource,
         @InjectRepository(Order)
         private readonly orderRepo: Repository<Order>,
-    ) {}
+    ) { }
 
     async createOrder(dto: CreateOrderDto) {
         if (!dto.items || dto.items.length === 0) {
@@ -31,29 +31,29 @@ export class OrdersService {
             let total = 0;
 
             for (const item of dto.items) {
-            const product = await manager.findOne(Product, {
-            where: { id: item.product_id },
-            lock: { mode: 'pessimistic_write' },
-            });
+                const product = await manager.findOne(Product, {
+                    where: { id: item.product_id },
+                    lock: { mode: 'pessimistic_write' },
+                });
 
-            if (!product) {
-            throw new BadRequestException('Sản phẩm không tồn tại');
-            }
-            if (product.quantity < item.quantity) {
-                throw new BadRequestException(
-                `Sản phẩm ${product.name} không đủ số lượng hoặc hết hàng`,
-                );
-            }
-            total += product.price * item.quantity;
-            product.quantity -= item.quantity;
-            await manager.save(Product, product);
-            await manager.save(OrderItem, {
-                order_id: order.id,
-                product_id: product.id,
-                size: item.size,
-                quantity: item.quantity,
-                price: product.price,
-            });
+                if (!product) {
+                    throw new BadRequestException('Sản phẩm không tồn tại');
+                }
+                if (product.quantity < item.quantity) {
+                    throw new BadRequestException(
+                        `Sản phẩm ${product.name} không đủ số lượng hoặc hết hàng`,
+                    );
+                }
+                total += product.price * item.quantity;
+                product.quantity -= item.quantity;
+                await manager.save(Product, product);
+                await manager.save(OrderItem, {
+                    order_id: order.id,
+                    product_id: product.id,
+                    size: item.size,
+                    quantity: item.quantity,
+                    price: product.price,
+                });
             }
 
             await manager.update(Order, order.id, { total_price: total });
@@ -70,6 +70,7 @@ export class OrdersService {
 
     async findAll(limit = 20) {
         return this.orderRepo.find({
+            relations: ['items', 'items.product'],
             order: { created_at: 'DESC' },
             take: limit,
         });
@@ -78,11 +79,32 @@ export class OrdersService {
     async findByPhone(phone: string) {
         return this.orderRepo.find({
             where: { phone },
+            relations: ['items', 'items.product'],
             order: { created_at: 'DESC' },
         });
     }
 
     async findByCode(code: string) {
-        return this.orderRepo.findOne({ where: { order_code: code } });
+        return this.orderRepo.findOne({
+            where: { order_code: code },
+            relations: ['items', 'items.product'],
+        });
+    }
+
+    async confirmOrder(orderId: number) {
+        const order = await this.orderRepo.findOne({ where: { id: orderId } });
+        if (!order) {
+            throw new BadRequestException('Đơn hàng không tồn tại');
+        }
+        if (order.status === 'done') {
+            throw new BadRequestException('Đơn hàng đã được xác nhận rồi');
+        }
+        await this.orderRepo.update(orderId, { status: 'done' });
+        return {
+            message: 'Xác nhận đơn hàng thành công',
+            order_id: orderId,
+            order_code: order.order_code,
+            status: 'done',
+        };
     }
 }

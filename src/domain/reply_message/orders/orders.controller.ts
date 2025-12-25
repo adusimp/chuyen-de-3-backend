@@ -1,10 +1,10 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Patch, Param } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 
 @Controller('orders')
 export class OrdersController {
-    constructor(private readonly ordersService: OrdersService) {}
+    constructor(private readonly ordersService: OrdersService) { }
 
     @Post()
     create(@Body() body: CreateOrderDto) {
@@ -23,5 +23,10 @@ export class OrdersController {
     @Get('by-code')
     findByCode(@Query('code') code: string) {
         return this.ordersService.findByCode(code);
+    }
+
+    @Patch(':id/confirm')
+    confirmOrder(@Param('id') id: string) {
+        return this.ordersService.confirmOrder(Number(id));
     }
 }

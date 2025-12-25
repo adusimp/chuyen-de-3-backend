@@ -14,16 +14,16 @@ import { ReplyCommentModule } from './domain/reply_comment/reply_comment.module'
     TypeOrmModule.forRoot({
       type: 'postgres', // QUAN TRỌNG: Đổi thành 'postgres'
       url: process.env.DATABASE_URL, // Dùng luôn chuỗi kết nối cho gọn
-      
+
       // Tự động load các entity (bảng)
       autoLoadEntities: true, // Hoặc dùng autoLoadEntities: true
-      
+
       // Tự động tạo bảng nếu chưa có (chỉ dùng cho Dev)
-      synchronize: true, 
+      synchronize: true,
 
       // CẤU HÌNH SSL QUAN TRỌNG CHO SUPABASE
       ssl: {
-        rejectUnauthorized: false, 
+        rejectUnauthorized: false,
       },
     }),
     FbPostModule,
@@ -34,4 +34,4 @@ import { ReplyCommentModule } from './domain/reply_comment/reply_comment.module'
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
